@@ -19,16 +19,18 @@ const ProductCard = styled.View`
   shadow-radius: 5;
 `;
 
-const ProductFace = styled.Text`
+const FaceContainer = styled.View`
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
+  background: #e8e8e8;
+`;
+
+const ProductFace = styled.Text`
+align-items: center;
   color: #3c3b3b;
   min-height: 100px;
   text-align: center;
-  background: #e8e8e8;
   justify-content: center;
-  display: flex;
-  align-items: center;
   padding: 30px;
   font-size: ${props => props.size + "px" || "18px"};
 `;
@@ -86,7 +88,9 @@ export default class Products extends Component<Props> {
     return (
       <>
         <ProductCard>
-          <ProductFace size={product.size}>{product.face}</ProductFace>
+          <FaceContainer>
+            <ProductFace size={product.size}>{product.face}</ProductFace>
+          </FaceContainer>
           <ProductPrice>${Number(product.price).toFixed(2)}</ProductPrice>
           <ProductSize>{product.size}px</ProductSize>
           <ProductDateAdded>{this.formatDate(product.date)}</ProductDateAdded>
