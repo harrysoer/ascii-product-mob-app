@@ -9,15 +9,9 @@ import axios from "axios";
 import { unionBy } from "lodash";
 
 import Products from "./components/Products";
+import Advertisement from "./components/Advertisements";
 
 const CancelToken = axios.CancelToken;
-
-// const instructions = Platform.select({
-//   ios: "Press Cmd+R to reload,\n" + "Cmd+D or shake for dev menu",
-//   android:
-//     "Double tap R on your keyboard to reload,\n" +
-//     "Shake or press menu button for dev menu"
-// });
 
 const Header = styled.View`
   align-items: center;
@@ -36,11 +30,6 @@ const Description = styled.Text`
   font-size: 18px;
   margin: 10px 20px;
   text-align: center;
-`;
-
-const Advertisement = styled.Text`
-  color: #123456;
-  font-size: 30px;
 `;
 
 const ProductList = styled.FlatList``;
@@ -135,12 +124,11 @@ export default class App extends Component<Props, State> {
       let isEnd = isDoneFetching && !newQueuedProducts.length ? true : false;
       let prodlist = unionBy(products, newProducts, "id");
 
-      this.setState(
-        {
-          products: prodlist,
-          queuedProducts: newQueuedProducts,
-          isEnd
-        });
+      this.setState({
+        products: prodlist,
+        queuedProducts: newQueuedProducts,
+        isEnd
+      });
     } else {
       const { isDoneFetching, queuedProducts } = this.state;
 
@@ -157,7 +145,7 @@ export default class App extends Component<Props, State> {
         <>
           <Products product={item} />
           {(index + 1) % 20 === 0 && (
-            <Advertisement>ADVERTISEMENT CONTAINER</Advertisement>
+            <Advertisement Id={Math.floor(Math.random() * 20)}/>
           )}
         </>
       );
@@ -188,7 +176,7 @@ export default class App extends Component<Props, State> {
         </Header>
         <ProductList
           data={products}
-          onEndReached={this.fetchQueuedList}
+          onEndReached={this.fetchQueuedList} //I used this built-in function of React-Native's flatList component due to the limits of measuring the device's screen size
           keyExtractor={item => (typeof item === "string" ? item : item.id)}
           renderItem={this.renderList}
         />
