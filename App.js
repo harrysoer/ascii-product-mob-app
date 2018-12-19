@@ -6,6 +6,7 @@
 import React, { Component } from "react";
 import styled from "styled-components/native";
 import axios from "axios";
+import { unionBy } from "lodash";
 
 import Products from "./components/Products";
 
@@ -43,6 +44,13 @@ const Advertisement = styled.Text`
 `;
 
 const ProductList = styled.FlatList``;
+
+const End = styled.Text`
+  width: 100%;
+  text-align: center;
+  font-size: 30px;
+  margin: 20px 0;
+`;
 // ======
 
 type Props = {};
@@ -51,6 +59,7 @@ type State = {
   query: Object,
   queuedProducts: Array<any>,
   isLoading: boolean,
+  isEnd: boolean,
   isDoneFetching: boolean,
   cancelSource: any
 };
@@ -92,6 +101,10 @@ export default class App extends Component<Props, State> {
       const { queuedProducts } = this.state;
 
       let newProducts = isInitialFetch ? data : [...queuedProducts, ...data];
+      newProducts = data.length
+        ? newProducts
+        : [...newProducts, "~ end of catalogue ~"];
+
       newQuery = { ...newQuery, _page: 1 + query["_page"] };
       this.setState({
         [isInitialFetch ? "products" : "queuedProducts"]: newProducts,
@@ -110,6 +123,56 @@ export default class App extends Component<Props, State> {
     }
   };
 
+  fetchQueuedList = () => {
+    const { isEnd, queuedProducts } = this.state;
+
+    if (!isEnd && queuedProducts.length) {
+      const { isDoneFetching, products } = this.state;
+      let newQueuedProducts = [...queuedProducts];
+      let newProducts = newQueuedProducts.slice(0, 40);
+      newQueuedProducts.splice(0, 40);
+
+      let isEnd = isDoneFetching && !newQueuedProducts.length ? true : false;
+      let prodlist = unionBy(products, newProducts, "id");
+
+      this.setState(
+        {
+          products: prodlist,
+          queuedProducts: newQueuedProducts,
+          isEnd
+        });
+    } else {
+      const { isDoneFetching, queuedProducts } = this.state;
+
+      let isEnd = isDoneFetching && queuedProducts ? true : false;
+      this.setState({ isEnd });
+    }
+  };
+
+  renderList = (param: Object) => {
+    const { item, index } = param;
+    const isLast = typeof item === "string";
+    if (!isLast) {
+      return (
+        <>
+          <Products product={item} />
+          {(index + 1) % 20 === 0 && (
+            <Advertisement>ADVERTISEMENT CONTAINER</Advertisement>
+          )}
+        </>
+      );
+    } else {
+      const { isEnd, isDoneFetching, queuedProducts } = this.state;
+      return (
+        <>
+          {isEnd && isDoneFetching && !queuedProducts.length && (
+            <End>~ end of catalogue ~</End>
+          )}
+        </>
+      );
+    }
+  };
+
   render() {
     const { products } = this.state;
 
@@ -125,16 +188,9 @@ export default class App extends Component<Props, State> {
         </Header>
         <ProductList
           data={products}
-          keyExtractor={item => item.id}
-          renderItem={({ item, index }) => {
-            console.log(index);
-            return (
-              <>
-                <Products product={item} />
-                {(index + 1) % 20 === 0 && <Advertisement>ADVERTISEMENT CONTAINER</Advertisement>}
-              </>
-            );
-          }}
+          onEndReached={this.fetchQueuedList}
+          keyExtractor={item => (typeof item === "string" ? item : item.id)}
+          renderItem={this.renderList}
         />
       </>
     );
