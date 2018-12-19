@@ -38,6 +38,42 @@ const Description = styled.Text`
   text-align: center;
 `;
 
+const ProductList = styled.ScrollView``;
+
+const popTest = {
+  products: [
+    {
+      id: "83901-vic49cw4v3i",
+      size: 50,
+      price: 24,
+      face: "( .-. )",
+      date: "Sun Dec 09 2018 08:21:08 GMT+0800 (Philippine Standard Time)"
+    },
+    {
+      id: "63480-ulvtmb27q49",
+      size: 27,
+      price: 181,
+      face: "( .o.)",
+      date: "Tue Dec 04 2018 15:37:41 GMT+0800 (Philippine Standard Time)"
+    },
+    {
+      id: "62730-svodx5knf6",
+      size: 28,
+      price: 629,
+      face: "( `·´ )",
+      date: "Wed Dec 12 2018 18:35:07 GMT+0800 (Philippine Standard Time)"
+    },
+    {
+      id: "62730-svodx51nf6",
+      size: 28,
+      price: 629,
+      face: "( `·´ )",
+      date: "Wed Dec 12 2018 18:35:07 GMT+0800 (Philippine Standard Time)"
+    }
+  ]
+};
+// ======
+
 type Props = {};
 type State = {
   products: Array<any>,
@@ -108,15 +144,19 @@ export default class App extends Component<Props, State> {
 
     return (
       <>
-        <Header>
-          <Title>Products Grid</Title>
-          <Description>
-            Here you're sure to find a bargain on some of the finest ascii
-            available to purchase. Be sure to peruse our selection of ascii
-            faces in an exciting range of sizes and prices.
-          </Description>
-        </Header>
-        <Products productList={products} />
+        <ProductList>
+          <Header>
+            <Title>Products Grid</Title>
+            <Description>
+              Here you're sure to find a bargain on some of the finest ascii
+              available to purchase. Be sure to peruse our selection of ascii
+              faces in an exciting range of sizes and prices.
+            </Description>
+          </Header>
+          {popTest.products.map(product => (
+            <Products key={product.id} product={product} />
+          ))}
+        </ProductList>
       </>
     );
   }
