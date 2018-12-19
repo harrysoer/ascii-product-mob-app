@@ -7,7 +7,7 @@ import React, { Component } from "react";
 import styled from "styled-components/native";
 import axios from "axios";
 
-import Products from "./comonents/Products";
+import Products from "./components/Products";
 
 const CancelToken = axios.CancelToken;
 
@@ -21,12 +21,11 @@ const CancelToken = axios.CancelToken;
 const Header = styled.View`
   align-items: center;
   background: #41d46a;
-  height: 300px;
-  justify-content: center;
-  margin-bottom: 30px;
+  height: 250px;
 `;
 
 const Title = styled.Text`
+  margin-top: 20px;
   color: #ffff;
   font-size: 40px;
 `;
@@ -34,11 +33,16 @@ const Title = styled.Text`
 const Description = styled.Text`
   color: #ffff;
   font-size: 18px;
-  margin: 30px 20px;
+  margin: 10px 20px;
   text-align: center;
 `;
 
-const ProductList = styled.ScrollView``;
+const Advertisement = styled.Text`
+  color: #123456;
+  font-size: 30px;
+`;
+
+const ProductList = styled.FlatList``;
 // ======
 
 type Props = {};
@@ -89,7 +93,6 @@ export default class App extends Component<Props, State> {
 
       let newProducts = isInitialFetch ? data : [...queuedProducts, ...data];
       newQuery = { ...newQuery, _page: 1 + query["_page"] };
-      console.log(newProducts);
       this.setState({
         [isInitialFetch ? "products" : "queuedProducts"]: newProducts,
         isLoading: false,
@@ -112,19 +115,27 @@ export default class App extends Component<Props, State> {
 
     return (
       <>
-        <ProductList>
-          <Header>
-            <Title>Products Grid</Title>
-            <Description>
-              Here you're sure to find a bargain on some of the finest ascii
-              available to purchase. Be sure to peruse our selection of ascii
-              faces in an exciting range of sizes and prices.
-            </Description>
-          </Header>
-          {products.map(product => (
-            <Products key={product.id} product={product} />
-          ))}
-        </ProductList>
+        <Header>
+          <Title>Products Grid</Title>
+          <Description>
+            Here you're sure to find a bargain on some of the finest ascii
+            available to purchase. Be sure to peruse our selection of ascii
+            faces in an exciting range of sizes and prices.
+          </Description>
+        </Header>
+        <ProductList
+          data={products}
+          keyExtractor={item => item.id}
+          renderItem={({ item, index }) => {
+            console.log(index);
+            return (
+              <>
+                <Products product={item} />
+                {(index + 1) % 20 === 0 && <Advertisement>ADVERTISEMENT CONTAINER</Advertisement>}
+              </>
+            );
+          }}
+        />
       </>
     );
   }

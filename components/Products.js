@@ -37,17 +37,17 @@ align-items: center;
 
 const ProductPrice = styled.Text`
   font-weight: 700;
-  font-size: 16px;
+  font-size: 18px;
   padding: 10px 10px 5px 10px;
   color: #41d46a;
 `;
 
 const ProductSize = styled.Text`
-  font-size: 13.5px;
+  font-size: 15.5px;
   padding: 0 10px 10px 10px;
 `;
 const ProductDateAdded = styled.Text`
-  font-size: 12px;
+  font-size: 14px;
   text-align: right;
   color: #484848;
   padding: 2px 5px;
