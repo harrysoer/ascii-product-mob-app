@@ -10,27 +10,9 @@ import { unionBy } from "lodash";
 
 import Products from "./components/Products";
 import Advertisement from "./components/Advertisements";
+import HeaderSection from "./components/HeaderSection";
 
 const CancelToken = axios.CancelToken;
-
-const Header = styled.View`
-  align-items: center;
-  background: #41d46a;
-  height: 250px;
-`;
-
-const Title = styled.Text`
-  margin-top: 20px;
-  color: #ffff;
-  font-size: 40px;
-`;
-
-const Description = styled.Text`
-  color: #ffff;
-  font-size: 18px;
-  margin: 10px 20px;
-  text-align: center;
-`;
 
 const ProductList = styled.FlatList``;
 
@@ -81,14 +63,14 @@ export default class App extends Component<Props, State> {
     let newQuery = { ...query };
 
     this.setState({ isLoading: true });
-
+    console.log('fetching')
     try {
       const { data } = await axios.get(
         `http://localhost:3000/api/products?${param}`,
         { cancelToken: this.state.cancelSource.token }
       );
       const { queuedProducts } = this.state;
-
+      console.log(data);
       let newProducts = isInitialFetch ? data : [...queuedProducts, ...data];
       newProducts = data.length
         ? newProducts
@@ -137,6 +119,25 @@ export default class App extends Component<Props, State> {
     }
   };
 
+  onSort = (option: Object) => {
+    // console.log(option);
+    // const { query, cancelSource } = this.state;
+    // cancelSource.cancel();
+
+    // this.setState(
+    //   {
+    //     query: { ...query, _page: 1, _sort: option.value },
+    //     isDoneFetching: false,
+    //     isEnd: false,
+    //     isLoading: true,
+    //     products: [],
+    //     cancelSource: CancelToken.source(),
+    //     queuedProducts: []
+    //   },
+    //   _ => setTimeout(this.fetch, 1000)
+    // );
+  };
+
   renderList = (param: Object) => {
     const { item, index } = param;
     const isLast = typeof item === "string";
@@ -145,7 +146,7 @@ export default class App extends Component<Props, State> {
         <>
           <Products product={item} />
           {(index + 1) % 20 === 0 && (
-            <Advertisement Id={Math.floor(Math.random() * 20)}/>
+            <Advertisement Id={Math.floor(Math.random() * 20)} />
           )}
         </>
       );
@@ -162,18 +163,13 @@ export default class App extends Component<Props, State> {
   };
 
   render() {
-    const { products } = this.state;
+    const { products, query } = this.state;
+
+    console.log(products);
 
     return (
       <>
-        <Header>
-          <Title>Products Grid</Title>
-          <Description>
-            Here you're sure to find a bargain on some of the finest ascii
-            available to purchase. Be sure to peruse our selection of ascii
-            faces in an exciting range of sizes and prices.
-          </Description>
-        </Header>
+        <HeaderSection selectedSort={query["_sort"]} onSort={this.onSort} />
         <ProductList
           data={products}
           onEndReached={this.fetchQueuedList} //I used this built-in function of React-Native's flatList component due to the limits of measuring the device's screen size
