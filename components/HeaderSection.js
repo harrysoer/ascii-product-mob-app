@@ -4,6 +4,7 @@
  */
 
 import React, { Component } from "react";
+import { Platform } from "react-native";
 import { Picker } from "native-base";
 import styled from "styled-components/native";
 import { white } from "ansi-colors";
@@ -27,18 +28,22 @@ const Description = styled.Text`
   text-align: center;
 `;
 
-const PickerStyling = {
-  borderWidth: 2,
-  borderColor: "#ffff",
-  marginTop: 4,
-  width: 250
-};
+//added color styling for android dependency
+const PickerCustom = styled(Picker)`
+  ${Platform.OS === "android" ? "color: #ffff;" : ""}
+  border-width: 2;
+  border-color: #ffff;
+  width: 250px;
+`;
 
-const PickerSelectStyle = { color: "#ffff", fontSize: 18 };
+const PickerSelectStyle = {
+  color: "#ffff",
+  fontSize: 20
+};
 
 type Props = {
   selectedSort: string,
-  onSort: any,
+  onSort: any
 };
 
 export default class HeaderSection extends Component<Props> {
@@ -52,17 +57,16 @@ export default class HeaderSection extends Component<Props> {
           available to purchase. Be sure to peruse our selection of ascii faces
           in an exciting range of sizes and prices.
         </Description>
-        <Picker
+        <PickerCustom
           placeholder={"Sort By..."}
           selectedValue={selectedSort}
-          style={PickerStyling}
           textStyle={PickerSelectStyle}
           onValueChange={onSort}
         >
-          <Picker.Item label="Price" value="price" />
-          <Picker.Item label="Size" value="size" />
-          <Picker.Item label="ID" value="id" />
-        </Picker>
+          <PickerCustom.Item label="Price" value="price" />
+          <PickerCustom.Item label="Size" value="size" />
+          <PickerCustom.Item label="ID" value="id" />
+        </PickerCustom>
       </Header>
     );
   }
