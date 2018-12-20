@@ -34,9 +34,11 @@ const PickerStyling = {
   width: 250
 };
 
+const PickerSelectStyle = { color: "#ffff", fontSize: 18 };
+
 type Props = {
-  selectedSort: Object,
-  onSort: any
+  selectedSort: string,
+  onSort: any,
 };
 
 export default class HeaderSection extends Component<Props> {
@@ -51,10 +53,10 @@ export default class HeaderSection extends Component<Props> {
           in an exciting range of sizes and prices.
         </Description>
         <Picker
-          placeholder={"Sort By"}
-          selectedValue={""}
+          placeholder={"Sort By..."}
+          selectedValue={selectedSort}
           style={PickerStyling}
-          textStyle={{ color: "#ffff", fontSize: 20 }}
+          textStyle={PickerSelectStyle}
           onValueChange={onSort}
         >
           <Picker.Item label="Price" value="price" />
