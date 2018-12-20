@@ -11,6 +11,7 @@ import { unionBy } from "lodash";
 import Products from "./components/Products";
 import Advertisement from "./components/Advertisements";
 import HeaderSection from "./components/HeaderSection";
+import LoadingIcon from "./components/Loading";
 
 const CancelToken = axios.CancelToken;
 
@@ -22,13 +23,13 @@ const End = styled.Text`
   font-size: 30px;
   margin: 20px 0;
 `;
-// ======
 
 type Props = {};
 type State = {
   products: Array<any>,
   query: Object,
   queuedProducts: Array<any>,
+  hasReachedEnd: boolean,
   isLoading: boolean,
   isEnd: boolean,
   isDoneFetching: boolean,
@@ -44,6 +45,7 @@ export default class App extends Component<Props, State> {
     isLoading: false,
     cancelSource: CancelToken.source(),
     willContinue: true,
+    hasReachedEnd: true,
     query: {
       _page: 1,
       _sort: "",
@@ -63,23 +65,20 @@ export default class App extends Component<Props, State> {
     let newQuery = { ...query };
 
     this.setState({ isLoading: true });
-    console.log('fetching')
+    console.log("fetching");
     try {
       const { data } = await axios.get(
         `http://localhost:3000/api/products?${param}`,
         { cancelToken: this.state.cancelSource.token }
       );
       const { queuedProducts } = this.state;
-      console.log(data);
       let newProducts = isInitialFetch ? data : [...queuedProducts, ...data];
-      newProducts = data.length
-        ? newProducts
-        : [...newProducts, "~ end of catalogue ~"];
 
       newQuery = { ...newQuery, _page: 1 + query["_page"] };
       this.setState({
         [isInitialFetch ? "products" : "queuedProducts"]: newProducts,
         isLoading: false,
+        hasReachedEnd: false,
         isDoneFetching: data.length ? false : true,
         cancelSource: CancelToken.source(),
         query: newQuery
@@ -97,6 +96,8 @@ export default class App extends Component<Props, State> {
   fetchQueuedList = () => {
     const { isEnd, queuedProducts } = this.state;
 
+    this.setState({ hasReachedEnd: true });
+
     if (!isEnd && queuedProducts.length) {
       const { isDoneFetching, products } = this.state;
       let newQueuedProducts = [...queuedProducts];
@@ -109,6 +110,7 @@ export default class App extends Component<Props, State> {
       this.setState({
         products: prodlist,
         queuedProducts: newQueuedProducts,
+        hasReachedEnd: isEnd,
         isEnd
       });
     } else {
@@ -120,52 +122,46 @@ export default class App extends Component<Props, State> {
   };
 
   onSort = (option: Object) => {
-    // console.log(option);
-    // const { query, cancelSource } = this.state;
-    // cancelSource.cancel();
+    const { query, cancelSource } = this.state;
+    cancelSource.cancel();
 
-    // this.setState(
-    //   {
-    //     query: { ...query, _page: 1, _sort: option.value },
-    //     isDoneFetching: false,
-    //     isEnd: false,
-    //     isLoading: true,
-    //     products: [],
-    //     cancelSource: CancelToken.source(),
-    //     queuedProducts: []
-    //   },
-    //   _ => setTimeout(this.fetch, 1000)
-    // );
+    this.setState(
+      {
+        query: { ...query, _page: 1, _sort: option },
+        isDoneFetching: false,
+        isEnd: false,
+        isLoading: true,
+        hasReachedEnd: true,
+        products: [],
+        cancelSource: CancelToken.source(),
+        queuedProducts: []
+      },
+      _ => setTimeout(this.fetch, 1000)
+    );
   };
 
   renderList = (param: Object) => {
     const { item, index } = param;
-    const isLast = typeof item === "string";
-    if (!isLast) {
-      return (
-        <>
-          <Products product={item} />
-          {(index + 1) % 20 === 0 && (
-            <Advertisement Id={Math.floor(Math.random() * 20)} />
-          )}
-        </>
-      );
-    } else {
-      const { isEnd, isDoneFetching, queuedProducts } = this.state;
-      return (
-        <>
-          {isEnd && isDoneFetching && !queuedProducts.length && (
-            <End>~ end of catalogue ~</End>
-          )}
-        </>
-      );
-    }
+    return (
+      <>
+        <Products product={item} />
+        {(index + 1) % 20 === 0 && (
+          <Advertisement Id={Math.floor(Math.random() * 20)} />
+        )}
+      </>
+    );
   };
 
   render() {
-    const { products, query } = this.state;
-
-    console.log(products);
+    const {
+      products,
+      query,
+      hasReachedEnd,
+      isEnd,
+      isLoading,
+      isDoneFetching,
+      queuedProducts
+    } = this.state;
 
     return (
       <>
@@ -176,6 +172,11 @@ export default class App extends Component<Props, State> {
           keyExtractor={item => (typeof item === "string" ? item : item.id)}
           renderItem={this.renderList}
         />
+
+        {hasReachedEnd && isLoading && <LoadingIcon />}
+        {isEnd && isDoneFetching && !queuedProducts.length && (
+          <End>"~ end of catalogue ~"</End>
+        )}
       </>
     );
   }
